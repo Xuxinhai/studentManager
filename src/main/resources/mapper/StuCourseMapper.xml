@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mywork.mapper.StuCourseMapper">
+
+    <sql id="StuCourse_col">
+      s.courseid,s.`year`,c.courseno,c.coursename,
+      c.teacherid,c.time,t.teachername
+    </sql>
+    <resultMap id="CourseResultMap" type="StuCourse">
+
+        <result column="courseid" jdbcType="VARCHAR" property="courseid" />
+        <result column="year" jdbcType="VARCHAR" property="year" />
+
+        <association property="course" javaType="Course">
+            <result column="courseno" jdbcType="VARCHAR" property="courseno" />
+            <result column="coursename" jdbcType="VARCHAR" property="coursename" />
+            <result column="time" jdbcType="INTEGER" property="time" />
+
+            <association property="teacher" javaType="Teacher">
+                <result column="teachername" jdbcType="VARCHAR" property="teachername" />
+            </association>
+
+        </association>
+    </resultMap>
+    <select id="selAllStuCourseByStudentid"  resultMap="CourseResultMap">
+        select
+        <include refid="StuCourse_col" />
+        from
+        stu_course s left join course c on s.courseid=c.id
+        left join teacher t on c.teacherid=t.id
+        where s.studentid=#{id} and s.status=1
+        <if test="coursename != '' and coursename != null">and c.coursename=#{coursename}</if>
+        <if test="teachername != '' and teachername != null">and t.teachername=#{teachername}</if>
+        <if test="year != '' and year != null">and s.year=#{year}</if>
+    </select>
+
+
+    <sql id="StuScore_col">
+      s.courseid,s.`year`,s.usualscore,s.finalscore,
+      totalscore,c.courseno,c.coursename,c.time
+    </sql>
+    <resultMap id="ScoreResultMap" type="StuCourse">
+
+        <result column="courseid" jdbcType="VARCHAR" property="courseid" />
+        <result column="year" jdbcType="VARCHAR" property="year" />
+        <result column="usualscore" jdbcType="DOUBLE" property="usualscore" />
+        <result column="finalscore" jdbcType="DOUBLE" property="finalscore" />
+        <result column="totalscore" jdbcType="DOUBLE" property="totalscore" />
+
+        <association property="course" javaType="Course">
+            <result column="courseno" jdbcType="VARCHAR" property="courseno" />
+            <result column="coursename" jdbcType="VARCHAR" property="coursename" />
+            <result column="time" jdbcType="INTEGER" property="time" />
+
+
+        </association>
+    </resultMap>
+    <select id="selAllStuScoreByStudentid"  resultMap="ScoreResultMap">
+        select
+        <include refid="StuScore_col" />
+        from
+        stu_course s left join course c on s.courseid=c.id
+        where !isnull(s.finalscore) and s.studentid=#{id} and s.status=1
+        <if test="coursename != '' and coursename != null">and c.coursename=#{coursename}</if>
+        <if test="year != '' and year != null">and s.year=#{year}</if>
+    </select>
+
+
+    <!--按条件分页查询所有学生的课程信息-->
+    <sql id="allStuCourse_col">
+      stu.id,stu.year,s.studentno,s.studentname,s.grade,c.courseno,c.coursename,m.majorname
+    </sql>
+    <resultMap id="allStuCourseResultMap" type="StuCourse">
+        <id column="id" jdbcType="INTEGER" property="id"></id>
+        <result column="year" jdbcType="VARCHAR" property="year" />
+        <!--course-->
+        <association property="course" javaType="Course">
+            <result column="courseno" jdbcType="VARCHAR" property="courseno" />
+            <result column="coursename" jdbcType="VARCHAR" property="coursename" />
+        </association>
+
+        <!--student-->
+        <association property="student" javaType="Student">
+            <result column="studentno" jdbcType="VARCHAR" property="studentno" />
+            <result column="studentname" jdbcType="VARCHAR" property="studentname" />
+            <result column="grade" jdbcType="INTEGER" property="grade" />
+
+            <association property="stuclass" javaType="Class">
+                <association property="major" javaType="Major">
+                    <result column="majorname" jdbcType="VARCHAR" property="majorname" />
+                </association>
+            </association>
+
+        </association>
+
+    </resultMap>
+    <select id="selAllStuCourse"  resultMap="allStuCourseResultMap">
+        select
+        <include refid="allStuCourse_col" />
+        from
+        stu_course stu left join student s on stu.studentid=s.id
+        left join course c on stu.courseid=c.id
+        left join class cla on s.classid=cla.id
+        left join major m on cla.majorid=m.id
+        where stu.status=1
+        <if test="studentno != '' and studentno != null">and s.studentno=#{studentno}</if>
+        <if test="coursename != '' and coursename != null">and c.coursename=#{coursename}</if>
+        <if test="grade != '' and grade != null">and s.grade=#{grade}</if>
+        <if test="majorid != '' and majorid != null">and m.id=#{majorid}</if>
+        <if test="year != '' and year != null">and stu.year=#{year}</if>
+    </select>
+
+    <!--按条件分页查询所有学生的成绩信息-->
+    <sql id="allScore_col">
+      stu.id,stu.`year`,stu.usualscore,stu.finalscore,stu.totalscore,
+      s.studentno,s.studentname,c.courseno,c.coursename
+    </sql>
+    <resultMap id="allScoreResultMap" type="StuCourse">
+        <id column="id" jdbcType="INTEGER" property="id"></id>
+        <result column="year" jdbcType="VARCHAR" property="year" />
+        <result column="usualscore" jdbcType="DOUBLE" property="usualscore"></result>
+        <result column="finalscore" jdbcType="DOUBLE" property="finalscore"></result>
+        <result column="totalscore" jdbcType="DOUBLE" property="totalscore"></result>
+
+        <!--course-->
+        <association property="course" javaType="Course">
+            <result column="courseno" jdbcType="VARCHAR" property="courseno" />
+            <result column="coursename" jdbcType="VARCHAR" property="coursename" />
+        </association>
+
+        <!--student-->
+        <association property="student" javaType="Student">
+            <result column="studentno" jdbcType="VARCHAR" property="studentno" />
+            <result column="studentname" jdbcType="VARCHAR" property="studentname" />
+        </association>
+
+    </resultMap>
+    <select id="selAllScore"  resultMap="allScoreResultMap">
+        select
+        <include refid="allScore_col" />
+        from
+        stu_course stu left join student s on stu.studentid=s.id
+        left join course c on stu.courseid=c.id
+        where stu.status=1 and !isnull(stu.totalscore)
+        <if test="studentno != '' and studentno != null">and s.studentno=#{studentno}</if>
+        <if test="coursename != '' and coursename != null">and c.coursename=#{coursename}</if>
+        <if test="year != '' and year != null">and stu.year=#{year}</if>
+    </select>
+
+
+
+
+</mapper>

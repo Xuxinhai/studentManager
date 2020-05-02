@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mywork.mapper.ClassMapper">
+
+    <resultMap id="ClassListResultMap" type="Class">
+        <id column="id" javaType="INTEGER" property="id"></id>
+        <result column="classno" jdbcType="VARCHAR" property="classno"></result>
+        <result column="majorid" jdbcType="INTEGER" property="majorid"></result>
+        <result column="teacherid" jdbcType="INTEGER" property="teacherid"></result>
+        <association property="major" javaType="Major">
+            <result column="majorno" jdbcType="VARCHAR" property="majorno"></result>
+            <result column="majorname" jdbcType="VARCHAR" property="majorname"></result>
+        </association>
+        <association property="teacher" javaType="Teacher">
+            <result column="teacherno" jdbcType="VARCHAR" property="teacherno"></result>
+            <result column="teachername" jdbcType="VARCHAR" property="teachername"></result>
+        </association>
+
+    </resultMap>
+
+    <select id="selAllClassWithMajorAndTeacher" resultMap="ClassListResultMap">
+        select
+        c.id,c.classno,c.majorid,c.teacherid,m.majorno,m.majorname,t.teacherno,t.teachername
+        from
+        class c left join major m on c.majorid = m.id
+        left join teacher t on c.teacherid = t.id
+        where c.`status`= 1
+   </select>
+    
+</mapper>

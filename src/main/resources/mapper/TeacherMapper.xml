@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mywork.mapper.TeacherMapper">
+
+
+    <resultMap id="TeaListResultMap" type="Teacher">
+        <id column="id" javaType="INTEGER" property="id"></id>
+        <result column="teacherno" jdbcType="VARCHAR" property="teacherno" />
+        <result column="teachername" jdbcType="VARCHAR" property="teachername" />
+        <result column="sex" jdbcType="INTEGER" property="sex" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="age" jdbcType="INTEGER" property="age" />
+
+    </resultMap>
+    <select id="selAllTea"  resultMap="TeaListResultMap">
+        select * from teacher
+        where status=1
+        <if test="teacherno != '' and teacherno != null">and teacherno=#{teacherno}</if>
+        <if test="teachername != '' and teachername != null">and teachername=#{teachername}</if>
+
+    </select>
+    
+</mapper>

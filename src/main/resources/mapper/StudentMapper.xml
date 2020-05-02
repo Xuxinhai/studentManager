@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mywork.mapper.StudentMapper">
+
+    <sql id="WithClass_Cloumn_List">
+      s.`id`,s.`studentno`,s.`studentname`,s.`grade`,s.age,s.phone,s.sex,s.`classid`,c.`classno`,c.`majorid`,m.`majorno`,m.`majorname`
+    </sql>
+    <resultMap id="WithClassResultMap" type="Student">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="studentno" jdbcType="VARCHAR" property="studentno" />
+        <result column="studentname" jdbcType="CHAR" property="studentname" />
+        <result column="age" jdbcType="INTEGER" property="age" />
+        <result column="phone" jdbcType="CHAR" property="phone" />
+        <result column="grade" jdbcType="INTEGER" property="grade" />
+        <result column="sex" jdbcType="INTEGER" property="sex" />
+
+        <association property="stuclass" javaType="Class">
+            <id column="classid" jdbcType="INTEGER" property="id"></id>
+            <result column="classno" jdbcType="VARCHAR" property="classno" />
+
+            <association property="major" javaType="Major">
+                <id column="majorid" jdbcType="INTEGER" property="id"></id>
+                <result column="majorno" jdbcType="VARCHAR" property="majorno" />
+                <result column="majorname" jdbcType="VARCHAR" property="majorname" />
+            </association>
+
+        </association>
+    </resultMap>
+    <select id="selStudentBySnoWithClass" parameterType="String" resultMap="WithClassResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="WithClass_Cloumn_List" />
+        from student s
+        left join class c on s.`classid`=c.`id`
+        left join major m on c.`majorid`=m.`id`
+        where s.`studentno`='2017211001' and s.status=1;
+
+    </select>
+
+    <sql id="StuList_col">
+      s.id,s.studentno,s.studentname,s.sex,s.grade,s.phone,s.age,c.classno,m.majorname
+    </sql>
+    <resultMap id="StuListResultMap" type="Student">
+        <id column="id" javaType="INTEGER" property="id"></id>
+        <result column="studentno" jdbcType="VARCHAR" property="studentno" />
+        <result column="studentname" jdbcType="VARCHAR" property="studentname" />
+        <result column="sex" jdbcType="INTEGER" property="sex" />
+        <result column="grade" jdbcType="INTEGER" property="grade" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="age" jdbcType="INTEGER" property="age" />
+
+        <association property="stuclass" javaType="Class">
+            <result column="classno" jdbcType="VARCHAR" property="classno" />
+
+            <association property="major" javaType="Major">
+                <result column="majorname" jdbcType="VARCHAR" property="majorname" />
+            </association>
+        </association>
+    </resultMap>
+    <select id="selAllStu"  resultMap="StuListResultMap">
+        select
+        <include refid="StuList_col" />
+        from
+        student s left join class c on s.classid = c.id
+        left join major m on c.majorid = m.id where 1=1 and s.status=1
+        <if test="studentno != '' and studentno != null">and s.studentno=#{studentno}</if>
+        <if test="studentname != '' and studentname != null">and s.studentname=#{studentname}</if>
+        <if test="grade != '' and grade != null">and s.grade=#{grade}</if>
+        <if test="majorid != '' and majorid != null">and m.id=#{majorid}</if>
+        <if test="classid != '' and classid != null">and c.id=#{classid}</if>
+
+    </select>
+    
+</mapper>
